@@ -11,7 +11,6 @@ import (
 	"go.opentelemetry.io/collector/processor"
 	"go.opentelemetry.io/collector/processor/processorhelper"
 
-	"github.com/labaneilers/opentelemetry-collector-contrib/processor/simplisafeidprocessor/internal/metadata"
 	"github.com/open-telemetry/opentelemetry-collector-contrib/internal/coreinternal/attraction"
 	"github.com/open-telemetry/opentelemetry-collector-contrib/internal/filter/filterlog"
 )
@@ -21,9 +20,9 @@ var processorCapabilities = consumer.Capabilities{MutatesData: true}
 // NewFactory returns a new factory for the Attributes processor.
 func NewFactory() processor.Factory {
 	return processor.NewFactory(
-		metadata.Type,
+		component.MustNewType("attributes"),
 		createDefaultConfig,
-		processor.WithLogs(createLogsProcessor, metadata.LogsStability),
+		processor.WithLogs(createLogsProcessor, component.StabilityLevelAlpha),
 	)
 }
 
