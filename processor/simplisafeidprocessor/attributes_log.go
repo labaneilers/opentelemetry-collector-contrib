@@ -1,7 +1,7 @@
 // Copyright The OpenTelemetry Authors
 // SPDX-License-Identifier: Apache-2.0
 
-package simplisafeidprocessor // import "github.com/labaneilers/opentelemetry-collector-contrib/processor/simplisafeidprocessor"
+package simplisafeidprocessor // import "github.com/opentelemetry/opentelemetry-collector-contrib/processor/simplisafeidprocessor"
 
 import (
 	"context"
