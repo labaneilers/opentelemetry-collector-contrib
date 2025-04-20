@@ -14,9 +14,9 @@ import (
 	"go.opentelemetry.io/collector/processor"
 	"go.opentelemetry.io/collector/processor/processortest"
 
-	"github.com/labaneilers/opentelemetry-collector-contrib/processor/simplisafeidprocessor/internal/metadata"
 	"github.com/open-telemetry/opentelemetry-collector-contrib/internal/coreinternal/testdata"
 	"github.com/open-telemetry/opentelemetry-collector-contrib/pkg/pdatatest/plogtest"
+	"github.com/open-telemetry/opentelemetry-collector-contrib/processor/simplisafeidprocessor/internal/metadata"
 )
 
 // Common structure for all the Tests
