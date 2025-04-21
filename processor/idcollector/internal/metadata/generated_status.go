@@ -7,8 +7,8 @@ import (
 )
 
 var (
-	Type      = component.MustNewType("simplisafeid")
-	ScopeName = "github.com/open-telemetry/opentelemetry-collector-contrib/processor/simplisafeidprocessor"
+	Type      = component.MustNewType("idcollector")
+	ScopeName = "github.com/open-telemetry/opentelemetry-collector-contrib/processor/idcollectorprocessor"
 )
 
 const (

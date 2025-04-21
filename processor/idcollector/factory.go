@@ -1,7 +1,7 @@
 // Copyright The OpenTelemetry Authors
 // SPDX-License-Identifier: Apache-2.0
 
-package simplisafeidprocessor // import "github.com/open-telemetry/opentelemetry-collector-contrib/processor/simplisafeidprocessor"
+package idcollectorprocessor // import "github.com/open-telemetry/opentelemetry-collector-contrib/processor/idcollectorprocessor"
 
 import (
 	"context"
@@ -11,7 +11,7 @@ import (
 	"go.opentelemetry.io/collector/processor"
 	"go.opentelemetry.io/collector/processor/processorhelper"
 
-	"github.com/open-telemetry/opentelemetry-collector-contrib/processor/simplisafeidprocessor/internal/metadata"
+	"github.com/open-telemetry/opentelemetry-collector-contrib/processor/idcollectorprocessor/internal/metadata"
 )
 
 var processorCapabilities = consumer.Capabilities{MutatesData: true}
@@ -43,6 +43,6 @@ func createLogsProcessor(
 		set,
 		cfg,
 		nextConsumer,
-		newLogsimplisafeidprocessor(set.Logger, oCfg).processLogs,
+		newLogidcollectorprocessor(set.Logger, oCfg).processLogs,
 		processorhelper.WithCapabilities(processorCapabilities))
 }

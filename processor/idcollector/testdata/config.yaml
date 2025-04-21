@@ -1,4 +1,4 @@
-simplisafeid/multiple:
+idcollector/multiple:
   patterns:
   - "([a-z0-9]{8})"
   - "([a-z0-9]{32})"

@@ -1,4 +1,4 @@
-module github.com/open-telemetry/opentelemetry-collector-contrib/processor/simplisafeidprocessor
+module github.com/open-telemetry/opentelemetry-collector-contrib/processor/idcollectorprocessor
 
 go 1.23.0
 

@@ -1,4 +1,4 @@
-type: simplisafeid
+type: idcollector
 
 status:
   class: processor

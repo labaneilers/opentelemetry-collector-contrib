@@ -1,7 +1,7 @@
 // Copyright The OpenTelemetry Authors
 // SPDX-License-Identifier: Apache-2.0
 
-package simplisafeidprocessor // import "github.com/open-telemetry/opentelemetry-collector-contrib/processor/simplisafeidprocessor"
+package idcollectorprocessor // import "github.com/open-telemetry/opentelemetry-collector-contrib/processor/idcollectorprocessor"
 
 import (
 	"context"
@@ -14,18 +14,16 @@ import (
 	"go.uber.org/zap"
 )
 
-var id32Regexp = regexp.MustCompile(`\b[a-zA-Z0-9]{32}\b`)
-
-type logsimplisafeidprocessor struct {
+type logidcollectorprocessor struct {
 	logger           *zap.Logger
 	cfg              *Config
 	compiledPatterns []*regexp.Regexp
 }
 
-// newLogsimplisafeidprocessor returns a processor that modifies attributes of a
-// log record. To construct the attributes processors, the use of the factory
+// newLogidcollectorprocessor returns a processor that modifies attributes of a
+// log record. To construct the idcollector processors, the use of the factory
 // methods are required in order to validate the inputs.
-func newLogsimplisafeidprocessor(logger *zap.Logger, oCfg *Config) *logsimplisafeidprocessor {
+func newLogidcollectorprocessor(logger *zap.Logger, oCfg *Config) *logidcollectorprocessor {
 	compiledPatterns := make([]*regexp.Regexp, 0, len(oCfg.Patterns))
 	for _, pattern := range oCfg.Patterns {
 		re, err := regexp.Compile(pattern)
@@ -36,14 +34,14 @@ func newLogsimplisafeidprocessor(logger *zap.Logger, oCfg *Config) *logsimplisaf
 		compiledPatterns = append(compiledPatterns, re)
 	}
 
-	return &logsimplisafeidprocessor{
+	return &logidcollectorprocessor{
 		logger:           logger,
 		cfg:              oCfg,
 		compiledPatterns: compiledPatterns,
 	}
 }
 
-func (a *logsimplisafeidprocessor) processLogs(ctx context.Context, ld plog.Logs) (plog.Logs, error) {
+func (a *logidcollectorprocessor) processLogs(ctx context.Context, ld plog.Logs) (plog.Logs, error) {
 	rls := ld.ResourceLogs()
 	for i := 0; i < rls.Len(); i++ {
 		rs := rls.At(i)
@@ -85,7 +83,6 @@ func (a *logsimplisafeidprocessor) processLogs(ctx context.Context, ld plog.Logs
 				if len(collectedIDs) > 0 {
 					sort.Strings(collectedIDs) // Sort IDs alphanumerically
 					topAttrs.PutStr(a.cfg.TargetAttribute, strings.Join(collectedIDs, ","))
-					a.logger.Debug("Added "+a.cfg.TargetAttribute+" attribute", zap.Strings(a.cfg.TargetAttribute, collectedIDs))
 				}
 			}
 		}
