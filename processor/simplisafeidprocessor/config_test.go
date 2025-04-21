@@ -228,7 +228,7 @@ func TestSpanConfigUsedWithmetrics(t *testing.T) {
 	factory := NewFactory()
 	cfg := factory.CreateDefaultConfig()
 
-	sub, err := cm.Sub("attributes/servicesmetrics")
+	sub, err := cm.Sub("simplisafeid/servicesmetrics")
 
 	require.NoError(t, err)
 	require.NoError(t, sub.Unmarshal(cfg))
