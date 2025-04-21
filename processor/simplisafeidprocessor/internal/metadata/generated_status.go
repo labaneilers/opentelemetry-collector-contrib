@@ -7,7 +7,7 @@ import (
 )
 
 var (
-	Type      = component.MustNewType("attributes")
+	Type      = component.MustNewType("simplisafeid")
 	ScopeName = "github.com/open-telemetry/opentelemetry-collector-contrib/processor/simplisafeidprocessor"
 )
 

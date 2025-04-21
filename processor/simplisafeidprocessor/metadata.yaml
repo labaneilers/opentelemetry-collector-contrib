@@ -1,16 +1,12 @@
-type: attributes
+type: simplisafeid
 
 status:
   class: processor
   stability:
-    beta: [traces, metrics, logs]
+    beta: [logs]
   distributions: [core, contrib, k8s]
   warnings: [Identity Conflict]
   codeowners:
-    active: [boostchicken]
+    active: [labaneilers]
 tests:
-  config:
-    actions:
-      - key: attribute1
-        value: 123
-        action: insert
+  config: {}
