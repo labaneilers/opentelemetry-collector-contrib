@@ -12,28 +12,34 @@ import (
 	"go.opentelemetry.io/collector/pdata/pcommon"
 	"go.opentelemetry.io/collector/pdata/plog"
 	"go.uber.org/zap"
-
-	"github.com/open-telemetry/opentelemetry-collector-contrib/internal/coreinternal/attraction"
-	"github.com/open-telemetry/opentelemetry-collector-contrib/internal/filter/expr"
-	"github.com/open-telemetry/opentelemetry-collector-contrib/pkg/ottl/contexts/ottllog"
 )
 
 var id32Regexp = regexp.MustCompile(`\b[a-zA-Z0-9]{32}\b`)
 
 type logsimplisafeidprocessor struct {
-	logger   *zap.Logger
-	attrProc *attraction.AttrProc
-	skipExpr expr.BoolExpr[ottllog.TransformContext]
+	logger           *zap.Logger
+	cfg              *Config
+	compiledPatterns []*regexp.Regexp
 }
 
 // newLogsimplisafeidprocessor returns a processor that modifies attributes of a
 // log record. To construct the attributes processors, the use of the factory
 // methods are required in order to validate the inputs.
-func newLogsimplisafeidprocessor(logger *zap.Logger, attrProc *attraction.AttrProc, skipExpr expr.BoolExpr[ottllog.TransformContext]) *logsimplisafeidprocessor {
+func newLogsimplisafeidprocessor(logger *zap.Logger, oCfg *Config) *logsimplisafeidprocessor {
+	compiledPatterns := make([]*regexp.Regexp, 0, len(oCfg.Patterns))
+	for _, pattern := range oCfg.Patterns {
+		re, err := regexp.Compile(pattern)
+		if err != nil {
+			logger.Error("failed to compile pattern", zap.String("pattern", pattern), zap.Error(err))
+			continue
+		}
+		compiledPatterns = append(compiledPatterns, re)
+	}
+
 	return &logsimplisafeidprocessor{
-		logger:   logger,
-		attrProc: attrProc,
-		skipExpr: skipExpr,
+		logger:           logger,
+		cfg:              oCfg,
+		compiledPatterns: compiledPatterns,
 	}
 }
 
@@ -63,9 +69,11 @@ func (a *logsimplisafeidprocessor) processLogs(ctx context.Context, ld plog.Logs
 						} else if value.Type() == pcommon.ValueTypeStr {
 							// If the value is a string, extract alphanumeric IDs
 							strValue := value.Str()
-							ids := id32Regexp.FindAllString(strValue, -1)
-							if len(ids) > 0 {
-								collectedIDs = append(collectedIDs, ids...)
+							for _, pattern := range a.compiledPatterns {
+								ids := pattern.FindAllString(strValue, -1)
+								if len(ids) > 0 {
+									collectedIDs = append(collectedIDs, ids...)
+								}
 							}
 						}
 						return true // Continue iteration
@@ -76,11 +84,9 @@ func (a *logsimplisafeidprocessor) processLogs(ctx context.Context, ld plog.Logs
 
 				if len(collectedIDs) > 0 {
 					sort.Strings(collectedIDs) // Sort IDs alphanumerically
-					topAttrs.PutStr("ss.ids", strings.Join(collectedIDs, ","))
-					a.logger.Debug("Added ss.ids attribute", zap.Strings("ss.ids", collectedIDs))
+					topAttrs.PutStr(a.cfg.TargetAttribute, strings.Join(collectedIDs, ","))
+					a.logger.Debug("Added "+a.cfg.TargetAttribute+" attribute", zap.Strings(a.cfg.TargetAttribute, collectedIDs))
 				}
-
-				a.attrProc.Process(ctx, a.logger, lr.Attributes())
 			}
 		}
 	}

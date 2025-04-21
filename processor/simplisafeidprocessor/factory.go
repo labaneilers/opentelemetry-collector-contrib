@@ -11,8 +11,6 @@ import (
 	"go.opentelemetry.io/collector/processor"
 	"go.opentelemetry.io/collector/processor/processorhelper"
 
-	"github.com/open-telemetry/opentelemetry-collector-contrib/internal/coreinternal/attraction"
-	"github.com/open-telemetry/opentelemetry-collector-contrib/internal/filter/filterlog"
 	"github.com/open-telemetry/opentelemetry-collector-contrib/processor/simplisafeidprocessor/internal/metadata"
 )
 
@@ -39,21 +37,12 @@ func createLogsProcessor(
 	nextConsumer consumer.Logs,
 ) (processor.Logs, error) {
 	oCfg := cfg.(*Config)
-	attrProc, err := attraction.NewAttrProc(&oCfg.Settings)
-	if err != nil {
-		return nil, err
-	}
-
-	skipExpr, err := filterlog.NewSkipExpr(&oCfg.MatchConfig)
-	if err != nil {
-		return nil, err
-	}
 
 	return processorhelper.NewLogs(
 		ctx,
 		set,
 		cfg,
 		nextConsumer,
-		newLogsimplisafeidprocessor(set.Logger, attrProc, skipExpr).processLogs,
+		newLogsimplisafeidprocessor(set.Logger, oCfg).processLogs,
 		processorhelper.WithCapabilities(processorCapabilities))
 }

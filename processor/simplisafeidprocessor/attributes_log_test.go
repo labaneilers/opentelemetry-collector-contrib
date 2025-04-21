@@ -73,10 +73,6 @@ func TestLogProcessor_NilEmptyData(t *testing.T) {
 	factory := NewFactory()
 	cfg := factory.CreateDefaultConfig()
 	oCfg := cfg.(*Config)
-	// oCfg.Actions = []attraction.ActionKeyValue{
-	// 	{Key: "attribute1", Action: attraction.INSERT, Value: 123},
-	// 	{Key: "attribute1", Action: attraction.DELETE},
-	// }
 
 	tp, err := factory.CreateLogs(
 		context.Background(), processortest.NewNopSettings(metadata.Type), oCfg, consumertest.NewNop())
@@ -110,6 +106,10 @@ func TestAttributes_FindsOneOrMultipleUUID(t *testing.T) {
 
 	factory := NewFactory()
 	cfg := factory.CreateDefaultConfig()
+	cfg.(*Config).TargetAttribute = "ss.ids"
+	cfg.(*Config).Patterns = PatternsArray{
+		"\\b[a-zA-Z0-9]{32}\\b",
+	}
 
 	tp, err := factory.CreateLogs(context.Background(), processortest.NewNopSettings(metadata.Type), cfg, consumertest.NewNop())
 	require.NoError(t, err)
@@ -142,6 +142,47 @@ func TestAttributes_FindsNestedUUID(t *testing.T) {
 
 	factory := NewFactory()
 	cfg := factory.CreateDefaultConfig()
+	cfg.(*Config).TargetAttribute = "ss.ids"
+	cfg.(*Config).Patterns = PatternsArray{
+		"\\b[a-zA-Z0-9]{32}\\b",
+	}
+
+	tp, err := factory.CreateLogs(context.Background(), processortest.NewNopSettings(metadata.Type), cfg, consumertest.NewNop())
+	require.NoError(t, err)
+	require.NotNil(t, tp)
+
+	for _, tt := range testCases {
+		runIndividualLogTestCase(t, tt, tp)
+	}
+}
+
+func TestAttributes_FindsMultipleDifferentLengthIDs(t *testing.T) {
+	testCases := []logTestCase{
+		{
+			name: "finds nested matches",
+			inputAttributes: map[string]any{
+				"attr1": "00000000",
+				"attr2": map[string]any{
+					"attr1": "11111111111111111111111111111111 22222222",
+				},
+			},
+			expectedAttributes: map[string]any{
+				"attr1": "00000000",
+				"attr2": map[string]any{
+					"attr1": "11111111111111111111111111111111 22222222",
+				},
+				"ss.ids": "00000000,11111111111111111111111111111111,22222222",
+			},
+		},
+	}
+
+	factory := NewFactory()
+	cfg := factory.CreateDefaultConfig()
+	cfg.(*Config).TargetAttribute = "ss.ids"
+	cfg.(*Config).Patterns = PatternsArray{
+		"\\b[a-zA-Z0-9]{32}\\b",
+		"\\b[a-zA-Z0-9]{8}\\b",
+	}
 
 	tp, err := factory.CreateLogs(context.Background(), processortest.NewNopSettings(metadata.Type), cfg, consumertest.NewNop())
 	require.NoError(t, err)
@@ -167,6 +208,10 @@ func TestAttributes_DoesntMatchLongerIDs(t *testing.T) {
 
 	factory := NewFactory()
 	cfg := factory.CreateDefaultConfig()
+	cfg.(*Config).TargetAttribute = "ss.ids"
+	cfg.(*Config).Patterns = PatternsArray{
+		"\\b[a-zA-Z0-9]{32}\\b",
+	}
 
 	tp, err := factory.CreateLogs(context.Background(), processortest.NewNopSettings(metadata.Type), cfg, consumertest.NewNop())
 	require.NoError(t, err)

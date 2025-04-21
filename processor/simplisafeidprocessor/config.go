@@ -4,11 +4,12 @@
 package simplisafeidprocessor // import "github.com/open-telemetry/opentelemetry-collector-contrib/processor/simplisafeidprocessor"
 
 import (
-	"go.opentelemetry.io/collector/component"
+	"errors"
 
-	"github.com/open-telemetry/opentelemetry-collector-contrib/internal/coreinternal/attraction"
-	"github.com/open-telemetry/opentelemetry-collector-contrib/internal/filter/filterconfig"
+	"go.opentelemetry.io/collector/component"
 )
+
+type PatternsArray []string
 
 // Config specifies the set of attributes to be inserted, updated, upserted and
 // deleted and the properties to include/exclude a span from being processed.
@@ -18,20 +19,19 @@ import (
 // This determines if a span is to be processed or not.
 // The list of actions is applied in order specified in the configuration.
 type Config struct {
-	filterconfig.MatchConfig `mapstructure:",squash"`
-
-	// Specifies the list of attributes to act on.
-	// The set of actions are {INSERT, UPDATE, UPSERT, DELETE, HASH, EXTRACT}.
-	// This is a required field.
-	attraction.Settings `mapstructure:",squash"`
+	Patterns        PatternsArray `mapstructure:"patterns"`
+	TargetAttribute string        `mapstructure:"target_attribute"`
 }
 
 var _ component.Config = (*Config)(nil)
 
 // Validate checks if the processor configuration is valid
 func (cfg *Config) Validate() error {
-	// if len(cfg.Actions) == 0 {
-	// 	return errors.New("missing required field \"actions\"")
-	// }
+	if cfg.Patterns == nil {
+		return errors.New("missing required field \"patterns\"")
+	}
+	if cfg.TargetAttribute == "" {
+		return errors.New("missing required field \"target_attribute\"")
+	}
 	return nil
 }
